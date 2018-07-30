@@ -7,11 +7,18 @@ const expect = require("expect"),
     {
         Todo
     } = require("../models/todo.js");
-
+var todos = [{
+    text: "Test text 1"
+}, {
+    text: "Test text 2"
+}];
 beforeEach((done) => {
-    Todo.remove({}).then(() => done());
+    Todo.remove({}).then(() => {
+        Todo.insertMany(todos);
+        done();
+    });
 })
-describe("GET //TODOS", () => {
+describe("POST //TODOS", () => {
     it("should test something", (done) => {
         var text = "test the app 2"
         request(app)
@@ -28,18 +35,13 @@ describe("GET //TODOS", () => {
                     console.log(err)
                 } else {
                     Todo.find().then((docs) => {
-                        expect(docs.length).toBe(1);
-                        expect(docs[0].text).toBe(text);
+                        expect(docs.length).toBe(3);
+                        expect(docs[2].text).toBe(text);
                         done();
                     }).catch((e) => done(e))
                 }
             })
     });
-
-
-
-
-
 
 
     it("should not send in the case of invalid data", (done) => {
@@ -53,7 +55,7 @@ describe("GET //TODOS", () => {
                     done();
                 } else {
                     Todo.find().then((docs) => {
-                            expect(docs.length).toBe(0);
+                            expect(docs.length).toBe(2);
                             done()
                         })
                         .catch((e) => {
@@ -63,12 +65,15 @@ describe("GET //TODOS", () => {
             });
     });
 
-
-
-
-
-
-
-
-
+});
+describe("get //TODOS", () => {
+            it("should get some data" , (done) => {
+                request(app)
+                .get("/todos")
+                .expect(200)
+                .expect((res) => {
+                    expect(res.body.todos.length).toBe(2)
+                })
+                .end(done);
+            });
 });
