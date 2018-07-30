@@ -6,18 +6,34 @@ const expect = require("expect"),
     } = require("../server"),
     {
         Todo
-    } = require("../models/todo.js");
+    } = require("../models/todo.js"),
+      {ObjectID} = require("mongodb");
 var todos = [{
-    text: "Test text 1"
+    text: "Test text 1",
+    _id : new ObjectID()
 }, {
-    text: "Test text 2"
+    text: "Test text 2",
+    _id : new ObjectID()
 }];
+
+
+
+
 beforeEach((done) => {
     Todo.remove({}).then(() => {
         Todo.insertMany(todos);
-        done();
+        done(); 
     });
 })
+
+
+
+
+
+
+
+
+
 describe("POST //TODOS", () => {
     it("should test something", (done) => {
         var text = "test the app 2"
@@ -77,3 +93,27 @@ describe("get //TODOS", () => {
                 .end(done);
             });
 });
+
+describe("get todos by id" , () => {
+//    it("should test the Get by ID" , (done) => {
+//        request(app)
+//        .get(`todos/${todos[0]._id.toHexString()}`)
+//        .expect(200)
+//        .expect((res) => {
+//            res.body.todo.text = todos[0].text;
+//        } )
+//        .end(done);
+//    })d
+    it("should get 404 for non valid ID" , (done) => {
+        request(app)
+        .get("/todos/123")
+        .expect(404)
+        .end(done)
+    })
+        it("should get 404 for non-found ID" , (done) => {
+        request(app)
+        .get("/todos/5b5f48f64083a812306d0db6")
+        .expect(404)
+        .end(done)
+    })
+})
