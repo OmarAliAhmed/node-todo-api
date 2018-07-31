@@ -1,6 +1,6 @@
 var MongoClient = require("mongodb").MongoClient;
 
-MongoClient.connect("mongodb://localhost:27017/TodoApp", (err, db) => {
+MongoClient.connect("mongodb://omarali:GGWP%40ZAUN2002@ds018258.mlab.com:18258/node-api-todo", (err, db) => {
     if (err) {
         return console.log("something went wrong !")
     }
