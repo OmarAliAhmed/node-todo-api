@@ -1,5 +1,6 @@
 const express = require("express"),
-    bodyParser = require("body-parser");
+    bodyParser = require("body-parser"),
+    _ = require("lodash")
 
 
 const port = process.env.PORT || 3000;
@@ -82,7 +83,9 @@ app.delete("/todos/:id", (req, res) => {
     if (ObjectID.isValid(id)) {
         Todo.findByIdAndRemove(id).then((doc) => {
             if (doc) {
-                res.send(doc)
+                res.send({
+                    doc
+                })
             } else {
                 res.status(404).send({});
             }
@@ -92,6 +95,29 @@ app.delete("/todos/:id", (req, res) => {
     } else {
         res.status(400).send({});
     }
+
+})
+
+app.patch("/todos/:id", (req, res) => {
+    var id = req.params.id ,
+        body = _.pick(req.body, ["text", "completed"]);
+    
+    if (!ObjectID.isValid(id)) {
+        res.status(400).send({})
+    } else {
+        if (body.completed) {
+            body.completeAt = new Date().getTime();
+        } else {
+            body.completeAt = null;
+        }
+        Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((doc) => {
+            res.send(doc);
+        }, (e) => {
+            console.log("hi")
+            res.status(400).send({})
+        })
+    }
+
 
 })
 
