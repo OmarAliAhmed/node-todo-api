@@ -1,7 +1,8 @@
 const mongoose = require("mongoose"),
     validator = require("validator"),
     jwt = require("jsonwebtoken"),
-    _ = require("lodash")
+    _ = require("lodash"),
+    bcrypt = require("bcryptjs");
 
 mongoose.plugin(schema => {
     schema.options.usePushEach = true
@@ -58,8 +59,8 @@ userSchema.methods.generateAuthToken = function () {
     });
     return user.save().then(() => {
         return new Promise((resolve, reject) => {
-        resolve(token);
-    });
+            resolve(token);
+        });
     }, (e) => {
         return e;
     })
@@ -71,9 +72,9 @@ userSchema.statics.findByToken = function (token) {
     try {
         decoded = jwt.verify(token, "313");
     } catch (err) {
-    return new Promise((resolve, reject) => {
-        reject();
-    })
+        return new Promise((resolve, reject) => {
+            reject();
+        })
     }
     return User.findOne({
         _id: decoded._id,
@@ -83,8 +84,20 @@ userSchema.statics.findByToken = function (token) {
 
 }
 
- 
 
+userSchema.pre("save", function (next) {
+    var user = this;
+    if (user.isModified("password")) {
+        bcrypt.genSalt(10, (err, salt) => {
+            bcrypt.hash(user.password, salt, (err, hash) => {
+                user.password = hash
+                next();
+            });
+        })
+    } else {
+        next();
+    }
+})
 
 
 
